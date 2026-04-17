@@ -76,8 +76,31 @@ class TestSteelProductionModel(unittest.TestCase):
         self.assertAlmostEqual(len(self.X_train) / total, 0.8, delta=0.01)
         self.assertAlmostEqual(len(self.X_test)  / total, 0.2, delta=0.01)
 
-    # ── Model tests ─────────────────────────────────────────────────────────────
+    # ── Output statistic ────────────────────────────────────────────────────────
 
+    def test_print_output_statistic(self):
+        """Print descriptive statistics of the output column"""
+        std  = self.y.std()
+        mean = self.y.mean()
+        mn   = self.y.min()
+        mx   = self.y.max()
+        r2   = r2_score(self.y_test, self.y_pred)
+        rmse = np.sqrt(mean_squared_error(self.y_test, self.y_pred))
+
+        print("\n-- Output column statistics ------------------------------")
+        print(f"Mean               : {mean:.4f}")
+        print(f"Standard deviation : {std:.4f}")
+        print(f"Min                : {mn:.4f}")
+        print(f"Max                : {mx:.4f}")
+        print("-- Model performance -------------------------------------")
+        print(f"R2                 : {r2:.4f}")
+        print(f"RMSE               : {rmse:.4f}")
+        print(f"RMSE < std(output) : {rmse < std}  ({rmse:.4f} < {std:.4f})")
+
+        # not a test — just information
+        self.assertTrue(True)
+
+    # ── Model tests ─────────────────────────────────────────────────────────────
 
     def test_predictions_in_valid_range(self):
         """
@@ -91,7 +114,7 @@ class TestSteelProductionModel(unittest.TestCase):
         """
         R² score on the test set must be at least 0.3.
 
-        Why 0.3 instead of 0.7?
+        Why 0.3 valid?
         -----------------------
         The output variable in this dataset has a very narrow value range:
         its standard deviation is only ~0.083 on a 0–1 scale, meaning nearly
@@ -103,13 +126,8 @@ class TestSteelProductionModel(unittest.TestCase):
         errors produce a large relative error — which directly lowers the R² score.
         This is a property of the data itself, not a weakness of the model.
 
-        A threshold of 0.3 is justified for three reasons:
-          1. It confirms the model explains at least 30 % of the output variance,
-             which is a meaningful signal given the low-variance target.
-          2. Benchmarking showed that RandomForest and XGBoost plateau
-             at ~0.43 on this dataset — no standard model reaches 0.7.
-          3. The RMSE test (< 0.1) enforces absolute prediction accuracy independently,
-             so a lower R² threshold does not mean quality is uncontrolled.
+        The RMSE test (< 0.1) enforces absolute prediction accuracy independently,
+        so a lower R² threshold does not mean quality is uncontrolled.
         """
         r2 = r2_score(self.y_test, self.y_pred)
         self.assertGreaterEqual(r2, 0.3, f"R² too low: {r2:.4f} (minimum: 0.3)")
