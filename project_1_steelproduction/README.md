@@ -6,7 +6,7 @@ Project 1 - Steel Production Data
 
 ### Abstract
 
-In this project, a regression Model was trained to predict a quality parameter in steel production from 21 normalized input parameters. Two approaches were compared — Random Forest and XGBoost — evaluated over 10 runs each. Random Forest reached a mean R² of 0.47 ± 0.02 and RMSE of 0.060 ± 0.001; XGBoost reached R² of 0.49 ± 0.02 and RMSE of 0.059 ± 0.001.
+In this project, a regression Model was trained to predict a quality parameter in steel production from 21 normalized input parameters. Two approaches were compared — Random Forest and XGBoost — evaluated over 10 runs each. Random Forrest reached a mean R² of 0.47 ± 0.02 and RMSE of 0.060 ± 0.001; XGBoost reached R² of 0.49 ± 0.02 and RMSE of 0.059 ± 0.001.
 
 ### Introduction
 
@@ -39,17 +39,17 @@ Each file is consisting of 22 columns: one output column called `output` (which 
 The analysis was done in the following steps:
 
 **Step 1 – Splitting the data**
-As a first step, the dataset was split into a training set (80%) and a test set (20%) with a fixed random seed (`random_state=18`) to make the results reproducible. That means the same split is used every time the code is run, so results can always be compared in a fair way. For the measurement of the model performance, two metrics were used:
+To obtain a reliable performance estimate, the dataset was split into a training set (80%) and a test set (20%) across 10 runs, each using a different random seed. This allows mean and standard deviation to be reported instead of a single point estimate. For the measurement of the model performance, two metrics were used:
 
 - **R² (R-squared):** Tells how much of the variation in the output the modell is able to explain. A value of 1.0 means perfect prediction; 0.0 means the model is no better than just always guessing the average value.
 - **RMSE (Root Mean Squared Error):** The average size of the prediction error, expressed in the same units as the output. Lower is better.
 
 **Step 2 – Creating and Training Random Forrest model**
-Random Forrest Modell was created and trained — a method that builds many decision trees from random subsets of the data and averages their predictions. It works well on tabular data without much configuration and was therefore a good starting point. 
+Random Forrest Modell was created and trained — a method that builds many decision trees from random subsets of the data and averages their predictions. It works well on tabular data without much configuration.
 
 **Step 3 – Writing a test class**
 
-After the training, a test class of 9 test cases was written to verify data integrity, correct modell training, and minimum prediction quality. The Random Forest reached an R² of approximately 0.43, meaning that 57% of the variance in the output remained unexplained. After several variations of the Random Forrest model the problem remained.
+After the training, a test class of 9 test cases was written to verify data integrity, correct modell training, and minimum prediction quality. The Random Forest reached an R² of approximately 0.43, meaning that 57% of the variance in the output remained unexplained. After trying several variations of the Random Forrest model the problem remained.
 
 **Step 4 – XGBoost as an alternative**
 To investigate whether a more powerful modell could improve this, XGBoost (Extreme Gradient Boosting) was modelled as a second approach. XGBoost builds trees one afetr another, where each new tree specifically tries to correct the mistakes of all the trees before. However, XGBoost also reached an R² of approximately 0.43 — the same result as the Random Forrest.
@@ -57,8 +57,8 @@ To investigate whether a more powerful modell could improve this, XGBoost (Extre
 **Step 5 – Investigation of the low R² value**
 Since no model was able to improve the score, the data itself was looked at more closely. The output column turned out to have a very narrow value range — its standard deviation is only about 0.083, meaning that almost all quality values are lying tightly around the average of 0.51.
 This is the actual reason for the low R²: because the target values are barely varying, even small absolute prediction errors appear large in relative terms, which pulls the R² score down.
-The RMSE, which measures the absolute error, stays well below 0.1 for both models, what confirms that the predictions are in fact numerically close to the true values.
-Annotation: Since both models produced identical R² scores, writing separate test cases for each would have been redundant. The visualisations in the Results section therefore show the Random Forrest modell only, as it is the primary model.
+The RMSE, which measures the absolute error, stays well below 0.1 for both modells, what confirms that the predictions are in fact numerically close to the true values.
+Annotation: Since both models produced identical R² scores, writing separate test cases for each would have been redundant.
 
 
 **Tools Used**
@@ -96,28 +96,27 @@ To obtain a reliable performance estimate, the Random Forest model was trained a
 | Random Forest | 0.4697 ± 0.0195 | 0.0602 ± 0.0011 | 10 |
 | XGBoost | 0.4852 ± 0.0239 | 0.0593 ± 0.0012 | 10 |
 
-Both models were evaluated over 10 runs using seeds [0, 1, 7, 13, 21, 42, 55, 77, 88, 99]. The low standard deviations confirm that the results are stable across different data splits. XGBoost reached a slightly higher mean R² (0.485 vs. 0.470) and a slightly lower RMSE (0.059 vs. 0.060), though the difference is within one standard deviation and not practically significant. The R² values appear low but are a direct consequence of the very small output variance (SD ≈ 0.083): because the total variance SS_total is small, even numerically small residuals produce a large ratio SS_res / SS_total, which lowers R². The RMSE below 0.060 for both models is smaller than the natural standard deviation of the output (0.083), confirming that the model predictions are closer to the true values than a  mean prediction would be.
+Both models were evaluated over 10 runs using different random seeds. The low standard deviations confirm that the results are stable across different data splits. XGBoost reached a slightly higher mean R² (0.485 vs. 0.470) and a slightly lower RMSE (0.059 vs. 0.060), though the difference is within one standard deviation and not practically significant. The R² values appear low but are a direct consequence of the very small output variance (SD ≈ 0.083): because the total variance SS_total is small, even numerically small residuals produce a large ratio SS_res / SS_total, which lowers R². The RMSE below 0.060 for both models is smaller than the natural standard deviation of the output (0.083), confirming that the model predictions are closer to the true values than a mean prediction would be.
 
-**Feature Analysis**
+**Visualizations**
 
-The following plots were generated by `steelproduction.ipynb` and saved to `results/figures/`.
+The following plots were generated by `steelproduction.ipynb` and `steelproduction_v2.ipynb` and saved to `results/figures/`.
 
-*Figure 1 – Actual vs. Predicted values (Random Forest)*
+*Figure 1 – Actual vs. Predicted values (Random Forrest)*
 
-![Actual vs Predicted](results/figures/actual_vs_predicted.png)
+![Actual vs Predicted Random Forrest](results/figures/actual_vs_predicted.png)
 
 Each point represents one sample from the test set. The x-axis shows the true output value and the y-axis shows the predicted value. A perfect model would place all points on the red diagonal line. The spread around the line reflects the typical prediction error.
 
-*Figure 2 – Feature Importance (Random Forest)*
 
-![Feature Importance](results/figures/feature_importance.png)
+*Figure 2 – Actual vs. Predicted values (XGBoost)*
 
-This chart shows which input columns had the most influence on the model's predictions. A longer bar indicates that the feature contributed more to reducing prediction uncertainty. 
-This analysis reveals which measurements carry the most information about the quality outcome — a result that is practically useful for identifying key control parameters in the production process.
+![Actual vs Predicted XGBoost](results/figures/actual_vs_predicted_v2.png)
+
 
 **Limitations**
 
-- **Unexplained variance:** The R² is limited to around 0.43 for both models, which suggests that a significant part of the variation in quality cannot be explained by the available input parameters alone. Additional factors not captured in the dataset may play a role.
+- **Unexplained variance:** The mean R² is approximately 0.47–0.49 for both models, which suggests that a significant part of the variation in quality cannot be explained by the available input parameters alone. Additional factors not captured in the dataset may play a role.
 - **No k-fold cross-validation:** Although 10 runs with different random seeds were performed, the test sets across runs can overlap. A proper k-fold cross-validation would ensure that every sample appears in the test set exactly once, providing a more rigorous and exhaustive performance estimate.
 - **No outlier analysis:** Potential outliers in the input columns were not investigated or removed. Outliers can affect model training and may have influenced the results.
 
